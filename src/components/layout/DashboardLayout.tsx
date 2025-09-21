@@ -45,38 +45,50 @@ const DashboardLayout: React.FC = () => {
     },
     {
       name: 'Report Issue',
-      href: '/issues/new',
+      href: '/dashboard/issues/new',
       icon: AlertTriangle,
       roles: ['citizen', 'official', 'admin']
     },
     {
       name: 'Issues',
-      href: '/issues',
+      href: '/dashboard/issues',
       icon: AlertTriangle,
       roles: ['citizen', 'official', 'admin']
     },
     {
       name: 'Community',
-      href: '/forum',
+      href: '/dashboard/forum',
       icon: MessageSquare,
       roles: ['citizen', 'official', 'admin']
     },
     {
       name: 'Events',
-      href: '/events',
+      href: '/dashboard/events',
       icon: Calendar,
       roles: ['citizen', 'official', 'admin']
     },
     {
       name: 'Maps',
-      href: '/maps',
+      href: '/dashboard/maps',
       icon: Map,
       roles: ['citizen', 'official', 'admin']
     },
     {
       name: 'Transparency',
-      href: '/transparency',
+      href: '/dashboard/transparency',
       icon: BarChart3,
+      roles: ['citizen', 'official', 'admin']
+    },
+    {
+      name: 'Notifications',
+      href: '/dashboard/notifications',
+      icon: Bell,
+      roles: ['citizen', 'official', 'admin']
+    },
+    {
+      name: 'Settings',
+      href: '/dashboard/settings',
+      icon: Settings,
       roles: ['citizen', 'official', 'admin']
     },
   ];

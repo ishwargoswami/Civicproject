@@ -72,6 +72,26 @@ const LoadingScreen: React.FC = () => {
   );
 };
 
+// Role-based Dashboard Redirect Component
+const RoleBasedDashboard: React.FC = () => {
+  const { user } = useSelector((state: RootState) => state.auth);
+  
+  if (!user) {
+    return <LoadingScreen />;
+  }
+  
+  // Redirect based on user role
+  switch (user.role) {
+    case 'admin':
+      return <Navigate to="/dashboard/admin" replace />;
+    case 'official':
+      return <Navigate to="/dashboard/official" replace />;
+    case 'citizen':
+    default:
+      return <Navigate to="/dashboard/citizen" replace />;
+  }
+};
+
 // Unauthorized Component
 const UnauthorizedPage: React.FC = () => {
   return (
@@ -132,9 +152,18 @@ const AppRouter: React.FC = () => {
             <DashboardLayout />
           </ProtectedRoute>
         }>
-          <Route index element={<Dashboard />} />
-          <Route path="admin" element={<AdminDashboard />} />
-          <Route path="official" element={<OfficialDashboard />} />
+          <Route index element={<RoleBasedDashboard />} />
+          <Route path="citizen" element={<Dashboard />} />
+          <Route path="admin" element={
+            <ProtectedRoute requiredRole="admin">
+              <AdminDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="official" element={
+            <ProtectedRoute requiredRole="official">
+              <OfficialDashboard />
+            </ProtectedRoute>
+          } />
           
           {/* Issues routes */}
           <Route path="issues" element={<IssuesPage />} />

@@ -4,7 +4,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff, Mail, Lock, LogIn, Heart } from 'lucide-react';
 import { AppDispatch, RootState } from '../../store';
-import { loginUser, clearError, getRoleDashboardRoute } from '../../store/slices/authSlice';
+import { loginUser, clearError } from '../../store/slices/authSlice';
 
 const LoginForm: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -39,19 +39,10 @@ const LoginForm: React.FC = () => {
     
     try {
       const result = await dispatch(loginUser(formData));
-      console.log('Login result:', result); // Debug log
       
       if (loginUser.fulfilled.match(result)) {
-        // Redirect based on user role
-        const userRole = result.payload.user?.role || 'citizen';
-        console.log('User role:', userRole); // Debug log
-        
-        // Always redirect to role-based dashboard
-        const redirectTo = getRoleDashboardRoute(userRole);
-        console.log('Redirecting to:', redirectTo); // Debug log
-        
-        // Navigate immediately - Redux state is already updated
-        navigate(redirectTo, { replace: true });
+        // Redirect to dashboard - the RoleBasedDashboard component will handle role-specific routing
+        navigate('/dashboard', { replace: true });
       }
     } catch (error) {
       console.error('Login failed:', error);

@@ -1055,22 +1055,83 @@ export const notificationsAPI = {
 
 // Transparency API
 export const transparencyAPI = {
-  getPublicSpending: (params: {
+  // Dashboard
+  getDashboardStats: () =>
+    apiClient.get('/transparency/dashboard/overview/'),
+  
+  getBudgetOverview: () =>
+    apiClient.get('/transparency/dashboard/budget_overview/'),
+  
+  // Departments
+  getDepartments: () =>
+    apiClient.get('/transparency/departments/'),
+  
+  // Categories
+  getCategories: () =>
+    apiClient.get('/transparency/categories/'),
+  
+  // Public Spending
+  getPublicSpending: (params?: {
+    page?: number;
     year?: number;
-    category?: string;
     department?: string;
+    category?: string;
+    min_amount?: number;
+    max_amount?: number;
+    search?: string;
   }) => apiClient.get('/transparency/spending/', { params }),
   
-  getProjectProgress: (params: {
+  getSpendingDetails: (id: string) =>
+    apiClient.get(`/transparency/spending/${id}/`),
+  
+  getSpendingByDepartment: (year?: number) =>
+    apiClient.get('/transparency/spending/by_department/', { params: { year } }),
+  
+  getSpendingByCategory: (year?: number) =>
+    apiClient.get('/transparency/spending/by_category/', { params: { year } }),
+  
+  getSpendingTrends: (year?: number) =>
+    apiClient.get('/transparency/spending/trends/', { params: { year } }),
+  
+  // Public Projects
+  getPublicProjects: (params?: {
+    page?: number;
     status?: string;
+    department?: string;
     category?: string;
+    search?: string;
   }) => apiClient.get('/transparency/projects/', { params }),
   
-  getBudgetData: (year: number) =>
-    apiClient.get(`/transparency/budget/${year}/`),
+  getProjectDetails: (id: string) =>
+    apiClient.get(`/transparency/projects/${id}/`),
   
-  getPerformanceMetrics: () =>
-    apiClient.get('/transparency/metrics/'),
+  getProjectStatusDistribution: () =>
+    apiClient.get('/transparency/projects/status_distribution/'),
+  
+  getOverdueProjects: () =>
+    apiClient.get('/transparency/projects/overdue/'),
+  
+  getOverBudgetProjects: () =>
+    apiClient.get('/transparency/projects/over_budget/'),
+  
+  // Performance Metrics
+  getPerformanceMetrics: (params?: {
+    metric_type?: string;
+    department?: string;
+  }) => apiClient.get('/transparency/metrics/', { params }),
+  
+  // Public Documents
+  getPublicDocuments: (params?: {
+    page?: number;
+    document_type?: string;
+    department?: string;
+    search?: string;
+  }) => apiClient.get('/transparency/documents/', { params }),
+  
+  downloadDocument: (id: string) =>
+    apiClient.get(`/transparency/documents/${id}/download/`, {
+      responseType: 'blob',
+    }),
 };
 
 // Maps API
