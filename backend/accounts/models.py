@@ -9,6 +9,10 @@ from datetime import timedelta
 from django.utils import timezone
 
 
+# Import NotificationPreference here to avoid circular imports
+# We'll define it in a separate file but import after User is defined
+
+
 class User(AbstractUser):
     """Custom user model with additional fields for civic platform"""
     

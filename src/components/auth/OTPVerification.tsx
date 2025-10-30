@@ -52,6 +52,7 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
 
   const handleInputChange = (index: number, value: string) => {
     if (value.length > 1) return; // Only allow single digit
+    if (isVerifying) return; // Prevent input during verification
 
     const newOtp = [...otp];
     newOtp[index] = value;
@@ -63,8 +64,10 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
     }
 
     // Auto-submit when all fields are filled
-    if (newOtp.every(digit => digit !== '') && newOtp.join('').length === 6) {
-      handleVerifyOTP(newOtp.join(''));
+    const otpCode = newOtp.join('');
+    if (newOtp.every(digit => digit !== '') && otpCode.length === 6 && !isVerifying) {
+      console.log('🔄 Auto-submitting OTP:', otpCode);
+      handleVerifyOTP(otpCode);
     }
   };
 
@@ -98,9 +101,15 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
   };
 
   const handleVerifyOTP = async (otpCode: string) => {
+    // Prevent duplicate calls
+    if (isVerifying) {
+      console.log('⏸️ Already verifying, skipping duplicate call');
+      return;
+    }
+    
     setIsVerifying(true);
     try {
-      console.log('Verifying OTP:', { email, otp_code: otpCode, purpose });
+      console.log('🔐 Verifying OTP:', { email, otp_code: otpCode, purpose });
       
       // Import authAPI dynamically to avoid circular imports
       const { authAPI } = await import('../../services/realApi');
@@ -111,19 +120,36 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
         purpose
       });
 
-      console.log('OTP verification response:', response);
+      console.log('✅ OTP verification response:', response);
 
       if (response.data.verified) {
+        console.log('✅ OTP verified successfully! Calling onVerified()...');
         onVerified();
       } else {
-        console.error('OTP verification failed - not verified');
+        console.error('❌ OTP verification failed - not verified');
         // Clear OTP inputs on error
         setOtp(['', '', '', '', '', '']);
         inputRefs.current[0]?.focus();
       }
     } catch (error: any) {
-      console.error('OTP verification failed:', error);
-      console.error('Error details:', error.response?.data);
+      console.error('❌ OTP verification failed:', error);
+      console.error('Error response data:', error.response?.data);
+      console.error('Error status:', error.response?.status);
+      
+      // Show the actual error message
+      if (error.response?.data?.non_field_errors) {
+        console.error('❌ Validation errors:', error.response.data.non_field_errors);
+        alert(`Error: ${error.response.data.non_field_errors.join(', ')}`);
+      }
+      if (error.response?.data?.detail) {
+        console.error('❌ Error detail:', error.response.data.detail);
+        alert(`Error: ${error.response.data.detail}`);
+      }
+      if (error.response?.data?.otp_code) {
+        console.error('❌ OTP error:', error.response.data.otp_code);
+        alert(`Error: ${error.response.data.otp_code.join(', ')}`);
+      }
+      
       setOtp(['', '', '', '', '', '']);
       inputRefs.current[0]?.focus();
     } finally {

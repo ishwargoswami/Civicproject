@@ -1,5 +1,6 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
+from .views_notifications import NotificationPreferenceView
 
 urlpatterns = [
     # Authentication
@@ -17,6 +18,9 @@ urlpatterns = [
     path('profile/extended/', views.ExtendedUserProfileView.as_view(), name='extended-profile'),
     path('password/change/', views.PasswordChangeView.as_view(), name='password-change'),
     
+    # Notification Preferences
+    path('notifications/preferences/', NotificationPreferenceView.as_view(), name='notification-preferences'),
+    
     # Activity
     path('activity/', views.UserActivityView.as_view(), name='user-activity'),
     
@@ -25,4 +29,7 @@ urlpatterns = [
     
     # Admin
     path('verify/<int:user_id>/', views.verify_user, name='verify-user'),
+    
+    # Officials
+    path('officials/', include('accounts.urls_officials')),
 ]

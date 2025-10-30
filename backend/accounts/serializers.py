@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from .models import User, UserProfile, UserActivity, OTPVerification
+from .notification_models import NotificationPreference
 from django.core.mail import send_mail
 from django.conf import settings
 
@@ -342,3 +343,21 @@ class OTPVerifySerializer(serializers.Serializer):
     def save(self):
         otp = self.validated_data['otp_instance']
         return otp.verify()
+
+
+class NotificationPreferenceSerializer(serializers.ModelSerializer):
+    """Serializer for notification preferences"""
+    
+    class Meta:
+        model = NotificationPreference
+        fields = [
+            'email_enabled', 'email_issue_updates', 'email_event_reminders',
+            'email_forum_replies', 'email_system_updates', 'email_weekly_digest',
+            'whatsapp_enabled', 'whatsapp_verified', 'whatsapp_issue_updates',
+            'whatsapp_event_reminders', 'whatsapp_system_alerts',
+            'push_enabled', 'push_issue_updates', 'push_event_reminders',
+            'push_forum_replies', 'sms_enabled', 'sms_critical_only',
+            'digest_frequency', 'quiet_hours_enabled', 'quiet_hours_start',
+            'quiet_hours_end', 'created_at', 'updated_at'
+        ]
+        read_only_fields = ['whatsapp_verified', 'created_at', 'updated_at']

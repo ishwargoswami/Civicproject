@@ -7,11 +7,12 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import login
 from django.utils import timezone
 from .models import User, UserProfile, UserActivity, OTPVerification
+from .notification_models import NotificationPreference
 from .serializers import (
     UserRegistrationSerializer, UserLoginSerializer, UserProfileSerializer,
     UserProfileUpdateSerializer, ExtendedUserProfileSerializer,
     UserActivitySerializer, PasswordChangeSerializer, PublicUserSerializer,
-    OTPVerificationSerializer, OTPVerifySerializer
+    OTPVerificationSerializer, OTPVerifySerializer, NotificationPreferenceSerializer
 )
 
 

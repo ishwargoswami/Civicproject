@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff, Mail, Lock, User, UserPlus, Heart } from 'lucide-react';
 import { AppDispatch, RootState } from '../../store';
-import { registerUser, clearError, sendOTP, verifyOTP, clearOTPState, getRoleDashboardRoute } from '../../store/slices/authSlice';
+import { registerUser, clearError, sendOTP, verifyOTP, clearOTPState, getRoleDashboardRoute, setRegistrationStep, setPendingRegistrationData } from '../../store/slices/authSlice';
 import OTPVerification from './OTPVerification';
 
 const RegisterForm: React.FC = () => {
@@ -19,25 +19,17 @@ const RegisterForm: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordError, setPasswordError] = useState('');
-  const [step, setStep] = useState<'form' | 'otp'>('form');
   const [otpEmail, setOtpEmail] = useState('');
 
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   
-  const { isLoading, error, otpSent, otpVerified } = useSelector((state: RootState) => state.auth);
-  
-  // Debug Redux state
-  console.log('Redux auth state:', { isLoading, error, otpSent, otpVerified });
+  const { isLoading, error, otpSent, otpVerified, pendingEmail, registrationStep, pendingRegistrationData } = useSelector((state: RootState) => state.auth);
 
-  // Auto-switch to OTP step if Redux state indicates OTP was sent
+  // Debug: Track step changes from Redux
   React.useEffect(() => {
-    if (otpSent && step === 'form') {
-      console.log('Redux state shows OTP sent, switching to OTP step');
-      setOtpEmail(formData.email); // Preserve email for OTP verification
-      setStep('otp');
-    }
-  }, [otpSent, step, formData.email]);
+    console.log('📍 Current registrationStep (from Redux):', registrationStep);
+  }, [registrationStep]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -69,43 +61,79 @@ const RegisterForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
+    
+    console.log('🔵 Form submitted, starting validation...');
+    
+    // Clear any existing errors
+    dispatch(clearError());
     
     if (!validatePassword()) {
+      console.log('❌ Password validation failed');
       return;
     }
     
+    console.log('✅ Password validation passed');
+    
+    // Preserve email before sending OTP
+    setOtpEmail(formData.email);
+    console.log('📧 Email preserved:', formData.email);
+    
+    // Save registration data to Redux so it persists through OTP flow
+    const registrationData = {
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+      password: formData.password,
+      role: formData.role,
+    };
+    dispatch(setPendingRegistrationData(registrationData));
+    console.log('💾 Registration data saved to Redux:', registrationData);
+    
     try {
-      // First, send OTP for email verification
-      console.log('Sending OTP to:', formData.email);
+      // Send OTP for email verification
+      console.log('📤 Dispatching sendOTP action...');
+      
       const result = await dispatch(sendOTP({
         email: formData.email,
         purpose: 'registration'
-      }));
+      })).unwrap();
       
-      console.log('OTP send result:', result);
+      console.log('✅ OTP sent successfully! Response:', result);
+      console.log('🔄 Redux will automatically switch to OTP step...');
       
-      if (sendOTP.fulfilled.match(result)) {
-        console.log('OTP sent successfully, switching to OTP step');
-        setOtpEmail(formData.email); // Preserve email for OTP verification
-        setStep('otp');
-      } else {
-        console.error('OTP send failed:', result);
-      }
-    } catch (error) {
-      console.error('Failed to send OTP:', error);
+      // Redux automatically sets registrationStep to 'otp' in the reducer
+      // No need to manually set it here
+      
+    } catch (error: any) {
+      console.error('❌ Failed to send OTP:', error);
+      console.error('Error details:', error);
+      // Error is already handled by Redux, just log it
     }
   };
 
   const handleOTPVerified = async () => {
     try {
+      // Use the saved registration data from Redux
+      const userData = pendingRegistrationData || formData;
+      
+      console.log('🎯 Using registration data:', userData);
+      
+      if (!userData.email || !userData.firstName || !userData.lastName || !userData.password) {
+        console.error('❌ Registration data is incomplete!', userData);
+        alert('Registration data was lost. Please fill the form again.');
+        dispatch(clearOTPState());
+        return;
+      }
+      
       // After OTP is verified, proceed with registration
-      const { confirmPassword, ...userData } = formData;
       const result = await dispatch(registerUser(userData));
       
       if (registerUser.fulfilled.match(result)) {
         // Registration successful, clear OTP state and redirect
+        console.log('✅ Registration complete! Redirecting...');
         dispatch(clearOTPState());
-        const redirectTo = getRoleDashboardRoute(formData.role);
+        const redirectTo = getRoleDashboardRoute(userData.role);
         navigate(redirectTo);
       }
     } catch (error) {
@@ -115,8 +143,9 @@ const RegisterForm: React.FC = () => {
 
   const handleResendOTP = async () => {
     try {
+      const emailToUse = otpEmail || pendingEmail || formData.email;
       await dispatch(sendOTP({
-        email: formData.email,
+        email: emailToUse,
         purpose: 'registration'
       }));
     } catch (error) {
@@ -125,18 +154,23 @@ const RegisterForm: React.FC = () => {
   };
 
   const handleCancelOTP = () => {
-    setStep('form');
-    dispatch(clearOTPState());
+    dispatch(clearOTPState()); // This will reset registrationStep to 'form'
   };
 
-  // Debug: Log current step
-  console.log('Current registration step:', step, 'Email:', formData.email);
-
-  // Show OTP verification step
-  if (step === 'otp') {
+  // Show OTP verification step - using Redux state
+  if (registrationStep === 'otp') {
+    const emailForOTP = otpEmail || pendingEmail || formData.email;
+    
+    // Fallback: if email is missing, go back to form
+    if (!emailForOTP) {
+      console.error('No email available for OTP verification');
+      dispatch(setRegistrationStep('form'));
+      return null;
+    }
+    
     return (
       <OTPVerification
-        email={otpEmail || formData.email}
+        email={emailForOTP}
         purpose="registration"
         onVerified={handleOTPVerified}
         onResendOTP={handleResendOTP}
@@ -354,7 +388,7 @@ const RegisterForm: React.FC = () => {
             )}
           </motion.button>
 
-          <div className="text-center space-y-2">
+          <div className="text-center">
             <p className="text-gray-400">
               Already have an account?{' '}
               <Link
@@ -364,18 +398,6 @@ const RegisterForm: React.FC = () => {
                 Sign in
               </Link>
             </p>
-            
-            {/* Debug button - remove in production */}
-            <button
-              type="button"
-              onClick={() => {
-                console.log('Manual OTP step switch');
-                setStep('otp');
-              }}
-              className="text-xs text-yellow-400 hover:text-yellow-300 transition-colors"
-            >
-              [Debug] Test OTP Screen
-            </button>
           </div>
         </motion.form>
       </div>

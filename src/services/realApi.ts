@@ -190,13 +190,20 @@ export const issuesAPI = {
     formData.append('description', issueData.description);
     formData.append('category', String(categoryMap[issueData.category] || 6));
     formData.append('priority', issueData.priority);
-    formData.append('latitude', String(issueData.location.latitude));
-    formData.append('longitude', String(issueData.location.longitude));
-    formData.append('address', issueData.location.address);
-    formData.append('tags', JSON.stringify([]));
     
-    // Add images to FormData
-    issueData.images.forEach((image, index) => {
+    // Only include latitude/longitude if they're not 0 (user got location)
+    if (issueData.location.latitude !== 0 && issueData.location.longitude !== 0) {
+      formData.append('latitude', String(issueData.location.latitude));
+      formData.append('longitude', String(issueData.location.longitude));
+    }
+    
+    formData.append('address', issueData.location.address);
+    
+    // Don't send tags if empty - let backend use default
+    // Sending JSON string in FormData can cause parsing issues
+    
+    // Add images to FormData (multiple files with same key)
+    issueData.images.forEach((image) => {
       formData.append('images', image);
     });
     

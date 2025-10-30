@@ -23,6 +23,14 @@ interface AuthState {
   otpVerified: boolean;
   pendingEmail: string | null;
   pendingPurpose: string | null;
+  registrationStep: 'form' | 'otp' | 'complete';
+  pendingRegistrationData: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+    role: 'citizen' | 'official';
+  } | null;
 }
 
 const initialState: AuthState = {
@@ -44,6 +52,8 @@ const initialState: AuthState = {
   otpVerified: false,
   pendingEmail: null,
   pendingPurpose: null,
+  registrationStep: 'form',
+  pendingRegistrationData: null,
 };
 
 // Async thunks
@@ -96,14 +106,22 @@ export const registerUser = createAsyncThunk(
     role: 'citizen' | 'official';
   }, { rejectWithValue }) => {
     try {
+      console.log('📤 Registering user:', { email: userData.email, role: userData.role });
       const response = await authAPI.register(userData);
+      console.log('✅ Registration successful:', response.data);
       localStorage.setItem('token', response.data.token);
       if (response.data.refresh) {
         localStorage.setItem('refreshToken', response.data.refresh);
       }
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Registration failed');
+      console.error('❌ Registration error:', error.response?.data);
+      return rejectWithValue(
+        error.response?.data?.message || 
+        error.response?.data?.detail ||
+        JSON.stringify(error.response?.data) ||
+        'Registration failed'
+      );
     }
   }
 );
@@ -125,7 +143,8 @@ export const sendOTP = createAsyncThunk(
   async (data: { email: string; purpose: 'registration' | 'login' | 'password_reset' }, { rejectWithValue }) => {
     try {
       const response = await authAPI.sendOTP(data);
-      return response.data;
+      // Return both the response and the email for state preservation
+      return { ...response.data, email: data.email, purpose: data.purpose };
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to send OTP');
     }
@@ -168,6 +187,20 @@ const authSlice = createSlice({
       state.otpVerified = false;
       state.pendingEmail = null;
       state.pendingPurpose = null;
+      state.registrationStep = 'form';
+      state.pendingRegistrationData = null;
+    },
+    setRegistrationStep: (state, action: PayloadAction<'form' | 'otp' | 'complete'>) => {
+      state.registrationStep = action.payload;
+    },
+    setPendingRegistrationData: (state, action: PayloadAction<{
+      firstName: string;
+      lastName: string;
+      email: string;
+      password: string;
+      role: 'citizen' | 'official';
+    }>) => {
+      state.pendingRegistrationData = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -233,6 +266,9 @@ const authSlice = createSlice({
       .addCase(sendOTP.fulfilled, (state, action) => {
         state.isLoading = false;
         state.otpSent = true;
+        state.pendingEmail = action.payload.email;
+        state.pendingPurpose = action.payload.purpose;
+        state.registrationStep = 'otp'; // Automatically switch to OTP step
         state.error = null;
       })
       .addCase(sendOTP.rejected, (state, action) => {
@@ -258,5 +294,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, clearError, setToken, clearOTPState } = authSlice.actions;
+export const { logout, clearError, setToken, clearOTPState, setRegistrationStep, setPendingRegistrationData } = authSlice.actions;
 export default authSlice.reducer;

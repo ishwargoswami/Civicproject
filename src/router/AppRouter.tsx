@@ -37,7 +37,7 @@ import EventsPage from '../pages/Events';
 import CreateEventPage from '../pages/CreateEvent';
 import MapsPage from '../pages/Maps';
 import TransparencyPage from '../pages/Transparency';
-import NotificationsPage from '../pages/Notifications';
+// Notifications page removed - settings in Settings page instead
 import SettingsPage from '../pages/Settings';
 import DebugAuth from '../pages/DebugAuth';
 import TestOTP from '../pages/TestOTP';
@@ -185,7 +185,7 @@ const AppRouter: React.FC = () => {
           <Route path="transparency" element={<TransparencyPage />} />
           
           {/* User routes */}
-          <Route path="notifications" element={<NotificationsPage />} />
+          {/* Notifications removed - available in Settings page */}
           <Route path="settings" element={<SettingsPage />} />
         </Route>
 
@@ -220,11 +220,7 @@ const AppRouter: React.FC = () => {
             <Navigate to="/dashboard/transparency" replace />
           </ProtectedRoute>
         } />
-        <Route path="/notifications" element={
-          <ProtectedRoute>
-            <Navigate to="/dashboard/notifications" replace />
-          </ProtectedRoute>
-        } />
+        {/* Notifications redirect removed - use Settings page instead */}
         <Route path="/settings" element={
           <ProtectedRoute>
             <Navigate to="/dashboard/settings" replace />

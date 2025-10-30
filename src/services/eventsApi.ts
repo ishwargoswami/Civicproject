@@ -237,79 +237,79 @@ export const getEvents = async (filters?: EventFilters): Promise<EventListItem[]
     });
   }
   
-  const response = await apiClient.get(`/events/?${params.toString()}`);
+  const response = await apiClient.get(`/events/events/?${params.toString()}`);
   return response.data.results || response.data;
 };
 
 export const getEvent = async (id: string): Promise<EventDetail> => {
-  const response = await apiClient.get(`/events/${id}/`);
+  const response = await apiClient.get(`/events/events/${id}/`);
   return response.data;
 };
 
 export const createEvent = async (eventData: EventCreateData): Promise<EventDetail> => {
-  const response = await apiClient.post('/events/', eventData);
+  const response = await apiClient.post('/events/events/', eventData);
   return response.data;
 };
 
 export const updateEvent = async (id: string, eventData: Partial<EventCreateData>): Promise<EventDetail> => {
-  const response = await apiClient.patch(`/events/${id}/`, eventData);
+  const response = await apiClient.patch(`/events/events/${id}/`, eventData);
   return response.data;
 };
 
 export const deleteEvent = async (id: string): Promise<void> => {
-  await apiClient.delete(`/events/${id}/`);
+  await apiClient.delete(`/events/events/${id}/`);
 };
 
 export const getMyEvents = async (): Promise<EventListItem[]> => {
-  const response = await apiClient.get('/events/my_events/');
+  const response = await apiClient.get('/events/events/my_events/');
   return response.data.results || response.data;
 };
 
 export const getMyRSVPs = async (): Promise<EventListItem[]> => {
-  const response = await apiClient.get('/events/my_rsvps/');
+  const response = await apiClient.get('/events/events/my_rsvps/');
   return response.data.results || response.data;
 };
 
 export const rsvpToEvent = async (eventId: string, rsvpData: RSVPData): Promise<EventDetail> => {
-  const response = await apiClient.post(`/events/${eventId}/rsvp/`, rsvpData);
+  const response = await apiClient.post(`/events/events/${eventId}/rsvp/`, rsvpData);
   return response.data;
 };
 
 export const updateRSVP = async (eventId: string, rsvpData: RSVPData): Promise<EventDetail> => {
-  const response = await apiClient.put(`/events/${eventId}/rsvp/`, rsvpData);
+  const response = await apiClient.put(`/events/events/${eventId}/rsvp/`, rsvpData);
   return response.data;
 };
 
 export const cancelRSVP = async (eventId: string): Promise<void> => {
-  await apiClient.delete(`/events/${eventId}/rsvp/`);
+  await apiClient.delete(`/events/events/${eventId}/rsvp/`);
 };
 
 export const volunteerForEvent = async (eventId: string, volunteerData: VolunteerData): Promise<EventDetail> => {
-  const response = await apiClient.post(`/events/${eventId}/volunteer/`, volunteerData);
+  const response = await apiClient.post(`/events/events/${eventId}/volunteer/`, volunteerData);
   return response.data;
 };
 
 export const updateVolunteerApplication = async (eventId: string, volunteerData: VolunteerData): Promise<EventDetail> => {
-  const response = await apiClient.put(`/events/${eventId}/volunteer/`, volunteerData);
+  const response = await apiClient.put(`/events/events/${eventId}/volunteer/`, volunteerData);
   return response.data;
 };
 
 export const cancelVolunteerApplication = async (eventId: string): Promise<void> => {
-  await apiClient.delete(`/events/${eventId}/volunteer/`);
+  await apiClient.delete(`/events/events/${eventId}/volunteer/`);
 };
 
 export const submitEventFeedback = async (eventId: string, feedbackData: FeedbackData): Promise<EventFeedback> => {
-  const response = await apiClient.post(`/events/${eventId}/feedback/`, feedbackData);
+  const response = await apiClient.post(`/events/events/${eventId}/feedback/`, feedbackData);
   return response.data;
 };
 
 export const getEventAttendees = async (eventId: string): Promise<EventRSVP[]> => {
-  const response = await apiClient.get(`/events/${eventId}/attendees/`);
+  const response = await apiClient.get(`/events/events/${eventId}/attendees/`);
   return response.data;
 };
 
 export const getEventVolunteers = async (eventId: string): Promise<EventVolunteer[]> => {
-  const response = await apiClient.get(`/events/${eventId}/volunteers/`);
+  const response = await apiClient.get(`/events/events/${eventId}/volunteers/`);
   return response.data;
 };
 
@@ -319,12 +319,12 @@ export const getEventCategories = async (): Promise<EventCategory[]> => {
 };
 
 export const getEventStatistics = async (): Promise<EventStatistics> => {
-  const response = await apiClient.get('/events/statistics/');
+  const response = await apiClient.get('/events/events/statistics/');
   return response.data;
 };
 
 export const uploadEventImage = async (eventId: string, imageData: FormData): Promise<EventImage> => {
-  const response = await apiClient.post(`/events/${eventId}/images/`, imageData, {
+  const response = await apiClient.post(`/events/events/${eventId}/images/`, imageData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
@@ -340,6 +340,6 @@ export const createEventUpdate = async (eventId: string, updateData: {
   notify_volunteers: boolean;
   is_urgent: boolean;
 }): Promise<EventUpdate> => {
-  const response = await apiClient.post(`/events/${eventId}/updates/`, updateData);
+  const response = await apiClient.post(`/events/events/${eventId}/updates/`, updateData);
   return response.data;
 };

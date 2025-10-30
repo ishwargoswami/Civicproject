@@ -7,6 +7,7 @@ import eventsSlice from './slices/eventsSlice';
 import notificationsSlice from './slices/notificationsSlice';
 import mapsSlice from './slices/mapsSlice';
 import transparencySlice from './slices/transparencySlice';
+import officialsSlice from './slices/officialsSlice';
 
 export const store = configureStore({
   reducer: {
@@ -17,6 +18,7 @@ export const store = configureStore({
     notifications: notificationsSlice,
     maps: mapsSlice,
     transparency: transparencySlice,
+    officials: officialsSlice,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

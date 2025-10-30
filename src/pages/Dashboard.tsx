@@ -46,7 +46,6 @@ const Dashboard: React.FC = () => {
     // dispatch(fetchIssues({ limit: 5 }));
     // dispatch(fetchPosts({ limit: 5 }));
     // dispatch(fetchEvents({ limit: 5 }));
-    console.log('Dashboard mounted, data fetching disabled temporarily');
   }, [dispatch]);
 
   const personalStats = [

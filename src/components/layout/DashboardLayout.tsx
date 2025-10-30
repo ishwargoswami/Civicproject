@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { RootState, AppDispatch } from '../../store';
 import { logout } from '../../store/slices/authSlice';
-import { fetchNotifications } from '../../store/slices/notificationsSlice';
+// Notifications moved to Settings page
 
 const DashboardLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -28,13 +28,6 @@ const DashboardLayout: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   
   const { user } = useSelector((state: RootState) => state.auth);
-  const { unreadCount } = useSelector((state: RootState) => state.notifications);
-
-  useEffect(() => {
-    // Temporarily disabled to prevent 404 errors that clear tokens
-    // dispatch(fetchNotifications({ limit: 10, unreadOnly: false }));
-    console.log('DashboardLayout mounted, notifications fetching disabled temporarily');
-  }, []); // Remove dispatch dependency to prevent unnecessary re-runs
 
   const navigationItems = [
     {
@@ -77,12 +70,6 @@ const DashboardLayout: React.FC = () => {
       name: 'Transparency',
       href: '/dashboard/transparency',
       icon: BarChart3,
-      roles: ['citizen', 'official', 'admin']
-    },
-    {
-      name: 'Notifications',
-      href: '/dashboard/notifications',
-      icon: Bell,
       roles: ['citizen', 'official', 'admin']
     },
     {
@@ -219,18 +206,6 @@ const DashboardLayout: React.FC = () => {
             </div>
 
             <div className="flex items-center space-x-4">
-              <button
-                onClick={() => navigate('/dashboard/notifications')}
-                className="relative p-3 text-gray-400 hover:text-white hover:bg-gradient-to-r hover:from-blue-500/10 hover:to-purple-500/10 rounded-xl transition-all duration-200 border border-transparent hover:border-white/10"
-              >
-                <Bell className="h-5 w-5" />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 h-5 w-5 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full flex items-center justify-center font-medium shadow-lg">
-                    {unreadCount > 9 ? '9+' : unreadCount}
-                  </span>
-                )}
-              </button>
-
               {/* Quick action buttons */}
               <button
                 onClick={() => navigate('/dashboard/issues/new')}

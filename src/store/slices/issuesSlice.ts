@@ -152,7 +152,14 @@ export const createIssue = createAsyncThunk(
       const response = await issuesAPI.createIssue(issueData);
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to create issue');
+      // Log the full error for debugging
+      console.error('Create issue error:', error.response?.data);
+      return rejectWithValue(
+        error.response?.data?.message || 
+        error.response?.data?.detail ||
+        JSON.stringify(error.response?.data) || 
+        'Failed to create issue'
+      );
     }
   }
 );
