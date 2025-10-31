@@ -35,11 +35,14 @@ class User(AbstractUser):
     # Profile Information
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
     phone_number = models.CharField(
-        max_length=17,
-        validators=[RegexValidator(regex=r'^\+?1?\d{9,15}$')],
+        max_length=20,
+        validators=[RegexValidator(
+            regex=r'^\+\d{10,15}$',
+            message="Phone number must be in format: +[country code][number] (e.g., +919725032474)"
+        )],
         null=True,
         blank=True,
-        help_text="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed."
+        help_text="Phone number with country code (e.g., +919725032474 or +14155551234)"
     )
     address = models.TextField(blank=True)
     bio = models.TextField(max_length=500, blank=True)
@@ -53,6 +56,9 @@ class User(AbstractUser):
     # Settings
     email_notifications = models.BooleanField(default=True)
     sms_notifications = models.BooleanField(default=False)
+    
+    # Metadata for temporary data storage
+    metadata = models.JSONField(default=dict, blank=True)
     
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)

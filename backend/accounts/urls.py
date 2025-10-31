@@ -1,6 +1,7 @@
 from django.urls import path, include
 from . import views
 from .views_notifications import NotificationPreferenceView
+from . import views_phone_verification
 
 urlpatterns = [
     # Authentication
@@ -17,6 +18,11 @@ urlpatterns = [
     path('profile/', views.UserProfileView.as_view(), name='user-profile'),
     path('profile/extended/', views.ExtendedUserProfileView.as_view(), name='extended-profile'),
     path('password/change/', views.PasswordChangeView.as_view(), name='password-change'),
+    
+    # Phone Verification (WhatsApp)
+    path('phone/send-verification/', views_phone_verification.send_phone_verification, name='send-phone-verification'),
+    path('phone/verify/', views_phone_verification.verify_phone_code, name='verify-phone'),
+    path('phone/remove/', views_phone_verification.remove_phone_number, name='remove-phone'),
     
     # Notification Preferences
     path('notifications/preferences/', NotificationPreferenceView.as_view(), name='notification-preferences'),

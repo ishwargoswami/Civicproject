@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { NotificationPreferences as NotificationPrefsType } from '../../types/settings';
 import { settingsAPI } from '../../services/settingsApi';
+import WhatsAppVerification from './WhatsAppVerification';
 
 interface NotificationPreferencesProps {
   phoneNumber?: string | null;
@@ -204,6 +205,15 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({ phone
           )}
         </div>
 
+        {/* WhatsApp Verification */}
+        <div>
+          <WhatsAppVerification
+            phoneNumber={phoneNumber || null}
+            isVerified={preferences.whatsapp_verified}
+            onVerificationComplete={fetchPreferences}
+          />
+        </div>
+
         {/* WhatsApp Notifications */}
         <div>
           <div className="flex items-center justify-between mb-4">
@@ -212,25 +222,25 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({ phone
               <div>
                 <h4 className="text-white font-semibold">WhatsApp Notifications</h4>
                 <p className="text-sm text-gray-400">
-                  {phoneNumber ? 
+                  {preferences.whatsapp_verified ? 
                     `Receive alerts on ${phoneNumber}` : 
-                    'Add phone number in profile to enable'
+                    'Verify your phone number to enable'
                   }
                 </p>
                 {preferences.whatsapp_verified && (
                   <span className="inline-flex items-center text-xs text-green-400 mt-1">
                     <CheckCircle className="w-3 h-3 mr-1" />
-                    Verified
+                    Verified & Active
                   </span>
                 )}
               </div>
             </div>
             <button
               onClick={() => handleToggle('whatsapp_enabled')}
-              disabled={!phoneNumber}
+              disabled={!preferences.whatsapp_verified}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                preferences.whatsapp_enabled && phoneNumber ? 'bg-green-500' : 'bg-gray-600'
-              } ${!phoneNumber ? 'opacity-50 cursor-not-allowed' : ''}`}
+                preferences.whatsapp_enabled && preferences.whatsapp_verified ? 'bg-green-500' : 'bg-gray-600'
+              } ${!preferences.whatsapp_verified ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               <span
                 className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
@@ -240,14 +250,8 @@ const NotificationPreferences: React.FC<NotificationPreferencesProps> = ({ phone
             </button>
           </div>
 
-          {preferences.whatsapp_enabled && phoneNumber && (
+          {preferences.whatsapp_enabled && preferences.whatsapp_verified && (
             <div className="ml-8 space-y-3 border-l-2 border-white/10 pl-4">
-              {!preferences.whatsapp_verified && (
-                <div className="p-3 bg-yellow-500/20 border border-yellow-500/50 rounded-lg text-yellow-400 text-sm mb-3">
-                  <AlertCircle className="w-4 h-4 inline mr-2" />
-                  You'll receive a verification message on WhatsApp soon
-                </div>
-              )}
               <label className="flex items-center justify-between">
                 <span className="text-gray-300">Issue updates</span>
                 <input

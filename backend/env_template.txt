@@ -20,6 +20,12 @@ EMAIL_USE_TLS=True
 EMAIL_HOST_USER=team.ecosattva@gmail.com
 EMAIL_HOST_PASSWORD=gugv ebki levv ucup
 
+# Twilio WhatsApp Configuration (for WhatsApp notifications)
+# Sign up at https://www.twilio.com/ to get these credentials
+TWILIO_ACCOUNT_SID=your_twilio_account_sid_here
+TWILIO_AUTH_TOKEN=your_twilio_auth_token_here
+TWILIO_WHATSAPP_NUMBER=whatsapp:+14155238886
+
 # File Storage Settings
 # For development, files are stored locally in media/ folder
 # For production, you can configure AWS S3 or other cloud storage

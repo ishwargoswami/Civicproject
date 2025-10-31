@@ -65,7 +65,15 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ profile, onUpdate }) 
     setSuccess(null);
 
     try {
-      const updatedProfile = await settingsAPI.profile.update(formData);
+      // Convert null values to empty strings for Django
+      const cleanedData = {
+        ...formData,
+        phone_number: formData.phone_number || '',
+        address: formData.address || '',
+        bio: formData.bio || '',
+      };
+      
+      const updatedProfile = await settingsAPI.profile.update(cleanedData);
       console.log('✅ Profile updated:', updatedProfile);
       onUpdate(updatedProfile);
       setSuccess('Profile updated successfully!');

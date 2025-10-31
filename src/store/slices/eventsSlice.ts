@@ -135,9 +135,17 @@ export const fetchEvent = createAsyncThunk(
 
 export const createEventAsync = createAsyncThunk(
   'events/createEvent',
-  async (eventData: EventCreateData) => {
-    const response = await createEvent(eventData);
-    return response;
+  async (eventData: EventCreateData, { rejectWithValue }) => {
+    try {
+      const response = await createEvent(eventData);
+      return response;
+    } catch (error: any) {
+      // Pass through the validation errors from backend
+      if (error.response?.data) {
+        return rejectWithValue(error.response.data);
+      }
+      return rejectWithValue({ error: error.message || 'Failed to create event' });
+    }
   }
 );
 
@@ -319,7 +327,24 @@ const eventsSlice = createSlice({
       })
       .addCase(createEventAsync.rejected, (state, action) => {
         state.loading.creating = false;
-        state.error.creating = action.error.message || 'Failed to create event';
+        // Handle both regular errors and validation errors
+        if (action.payload) {
+          const payload = action.payload as any;
+          // If it's a validation error object, format it nicely
+          if (typeof payload === 'object' && !payload.error) {
+            const errorMessages = Object.entries(payload)
+              .map(([field, messages]) => {
+                const messageArray = Array.isArray(messages) ? messages : [messages];
+                return `${field}: ${messageArray.join(', ')}`;
+              })
+              .join('; ');
+            state.error.creating = errorMessages || 'Validation failed';
+          } else {
+            state.error.creating = payload.error || payload.detail || 'Failed to create event';
+          }
+        } else {
+          state.error.creating = action.error.message || 'Failed to create event';
+        }
       });
 
     // Update Event

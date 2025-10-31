@@ -218,36 +218,37 @@ class EventCreateUpdateSerializer(serializers.ModelSerializer):
         ]
     
     def validate(self, data):
-        # Validate dates
-        if data['start_date'] >= data['end_date']:
-            raise serializers.ValidationError(
-                "End date must be after start date."
-            )
+        errors = {}
         
-        if data['start_date'] <= timezone.now():
-            raise serializers.ValidationError(
-                "Start date must be in the future."
-            )
+        # Validate dates
+        if 'start_date' in data and 'end_date' in data:
+            if data['start_date'] >= data['end_date']:
+                errors['end_date'] = "End date must be after start date."
+            
+            # Allow events starting within the next hour (more lenient)
+            from datetime import timedelta
+            min_start = timezone.now() - timedelta(minutes=5)  # 5 minute grace period
+            if data['start_date'] < min_start:
+                errors['start_date'] = "Start date cannot be in the past."
         
         # Validate registration deadline
-        if data.get('registration_deadline'):
+        if data.get('registration_deadline') and data.get('start_date'):
             if data['registration_deadline'] >= data['start_date']:
-                raise serializers.ValidationError(
-                    "Registration deadline must be before start date."
-                )
+                errors['registration_deadline'] = "Registration deadline must be before start date."
         
         # Validate online event requirements
-        if data['is_online'] and not data.get('meeting_link'):
-            raise serializers.ValidationError(
-                "Meeting link is required for online events."
-            )
+        if data.get('is_online') and not data.get('meeting_link'):
+            errors['meeting_link'] = "Meeting link is required for online events."
         
         # Validate location requirements
-        if not data['is_online']:
+        if not data.get('is_online', False):
             if not data.get('address'):
-                raise serializers.ValidationError(
-                    "Address is required for in-person events."
-                )
+                errors['address'] = "Address is required for in-person events."
+            if not data.get('location_name'):
+                errors['location_name'] = "Location name is required for in-person events."
+        
+        if errors:
+            raise serializers.ValidationError(errors)
         
         return data
     
