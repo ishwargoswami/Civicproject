@@ -143,8 +143,8 @@ const Resources = () => {
                 </>
               ) : (
                 <>
-                  <Download className="h-5 w-5" />
-                  <span>Download Toolkit</span>
+              <Download className="h-5 w-5" />
+              <span>Download Toolkit</span>
                 </>
               )}
             </button>

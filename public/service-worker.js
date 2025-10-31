@@ -1,6 +1,6 @@
 /* eslint-disable no-restricted-globals */
-const CACHE_NAME = 'civic-platform-v1';
-const RUNTIME_CACHE = 'civic-platform-runtime';
+const CACHE_NAME = 'civic-platform-v2-localhost';
+const RUNTIME_CACHE = 'civic-platform-runtime-v2';
 
 // Assets to cache on install
 const STATIC_ASSETS = [

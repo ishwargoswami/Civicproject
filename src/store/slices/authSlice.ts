@@ -56,24 +56,28 @@ export const loginUser = createAsyncThunk(
   'auth/loginUser',
   async (credentials: { email: string; password: string }, { rejectWithValue }) => {
     try {
+      console.log('🔵 Attempting login for:', credentials.email);
       const response = await authAPI.login(credentials);
-      console.log('Login response data:', response.data); // Debug log
+      console.log('✅ Login response data:', response.data);
       
       localStorage.setItem('token', response.data.token);
-      console.log('Token saved to localStorage:', response.data.token); // Debug log
+      console.log('✅ Token saved to localStorage');
       
       if (response.data.refresh) {
         localStorage.setItem('refreshToken', response.data.refresh);
-        console.log('Refresh token saved:', response.data.refresh); // Debug log
+        console.log('✅ Refresh token saved');
       }
       
       // Verify token was actually saved
       const savedToken = localStorage.getItem('token');
-      console.log('Token verification - saved:', !!savedToken); // Debug log
+      console.log('✅ Token verification - saved:', !!savedToken);
       
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Login failed');
+      console.error('❌ Login error:', error);
+      console.error('❌ Error response:', error.response?.data);
+      console.error('❌ Error status:', error.response?.status);
+      return rejectWithValue(error.response?.data?.message || error.response?.data?.detail || JSON.stringify(error.response?.data) || 'Login failed');
     }
   }
 );

@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 // Base API configuration
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+// Force localhost for API - backend only runs on computer
+const API_BASE_URL = 'http://localhost:8000/api';
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -69,6 +70,7 @@ apiClient.interceptors.response.use(
 // Real Authentication API
 export const authAPI = {
   login: (credentials: { email: string; password: string }) => {
+    console.log('🔵 Login attempt with:', { email: credentials.email, hasPassword: !!credentials.password });
     return apiClient.post('/auth/login/', credentials);
   },
 
