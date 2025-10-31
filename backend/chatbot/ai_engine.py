@@ -28,7 +28,7 @@ class CivicChatbotAI:
             self._init_gemini()
         else:
             self.ai_service = 'fallback'
-            print("⚠️ No AI API key found. Using fallback responses.")
+            print("[!] No AI API key found. Using fallback responses.")
     
     def _init_openai(self):
         """Initialize OpenAI client"""
@@ -36,9 +36,12 @@ class CivicChatbotAI:
             from openai import OpenAI
             self.client = OpenAI(api_key=self.openai_key)
             self.model = "gpt-3.5-turbo"  # or "gpt-4" for better quality
-            print("✅ OpenAI initialized")
+            print("[OK] OpenAI initialized")
         except ImportError:
-            print("⚠️ OpenAI package not installed. Run: pip install openai")
+            print("[!] OpenAI package not installed. Run: pip install openai")
+            self.ai_service = 'fallback'
+        except Exception as e:
+            print(f"[!] OpenAI initialization error: {e}")
             self.ai_service = 'fallback'
     
     def _init_gemini(self):
@@ -47,9 +50,12 @@ class CivicChatbotAI:
             import google.generativeai as genai
             genai.configure(api_key=self.gemini_key)
             self.client = genai.GenerativeModel('gemini-pro')
-            print("✅ Google Gemini initialized")
+            print("[OK] Google Gemini initialized")
         except ImportError:
-            print("⚠️ Google GenAI package not installed. Run: pip install google-generativeai")
+            print("[!] Google GenAI package not installed. Run: pip install google-generativeai")
+            self.ai_service = 'fallback'
+        except Exception as e:
+            print(f"[!] Gemini initialization error: {e}")
             self.ai_service = 'fallback'
     
     def get_system_context(self, user_data: Optional[Dict] = None) -> str:
@@ -105,9 +111,9 @@ User Roles:
 - Admins: Full platform management
 
 Be friendly, concise, and helpful. Provide step-by-step guidance when needed.
-If asked about reporting an issue, guide them through: Go to Dashboard → Issues → Create New Issue.
-If asked about events, direct them to: Dashboard → Events.
-If asked about their level/rewards, direct them to: Dashboard → Profile or Gamification page.
+If asked about reporting an issue, guide them through: Go to Dashboard > Issues > Create New Issue.
+If asked about events, direct them to: Dashboard > Events.
+If asked about their level/rewards, direct them to: Dashboard > Profile or Gamification page.
 
 Remember: You're helping build a better community through civic engagement!"""
 
@@ -206,7 +212,7 @@ Current User Context:
             return response.choices[0].message.content.strip()
             
         except Exception as e:
-            print(f"❌ OpenAI Error: {str(e)}")
+            print(f"[ERROR] OpenAI Error: {str(e)}")
             return self._generate_fallback_response(user_message, self._detect_intent(user_message))
     
     def _generate_gemini_response(
@@ -235,7 +241,7 @@ Current User Context:
             return response.text.strip()
             
         except Exception as e:
-            print(f"❌ Gemini Error: {str(e)}")
+            print(f"[ERROR] Gemini Error: {str(e)}")
             return self._generate_fallback_response(user_message, self._detect_intent(user_message))
     
     def _generate_fallback_response(self, message: str, intent: str) -> str:
@@ -243,7 +249,7 @@ Current User Context:
         
         fallback_responses = {
             'report_issue': """To report a community issue:
-1. Go to **Dashboard** → **Issues**
+1. Go to **Dashboard** > **Issues**
 2. Click **"Create New Issue"**
 3. Fill in:
    - Title and description
@@ -252,22 +258,22 @@ Current User Context:
    - Upload photos (optional)
 4. Submit!
 
-You'll earn **10 points** for reporting an issue. 🎉
+You'll earn **10 points** for reporting an issue!
 
 Officials will review and respond within 48 hours.""",
             
             'find_events': """To find community events:
-1. Go to **Dashboard** → **Events**
+1. Go to **Dashboard** > **Events**
 2. Browse upcoming events or use filters
 3. Click on an event to see details
 4. Click **RSVP** to register
 
-You'll earn **20 points** for attending events! 🎊
+You'll earn **20 points** for attending events!
 
 Events include: cleanups, town halls, workshops, and volunteer opportunities.""",
             
             'forum_help': """To participate in community forums:
-1. Go to **Dashboard** → **Forum**
+1. Go to **Dashboard** > **Forum**
 2. Browse discussions or create a new post
 3. You can:
    - Start discussions
@@ -281,7 +287,7 @@ Earn points for participation:
 - Vote in poll: **5 points**""",
             
             'transparency': """To view government transparency data:
-1. Go to **Dashboard** → **Transparency**
+1. Go to **Dashboard** > **Transparency**
 2. Explore:
    - Public spending by department
    - Active government projects
@@ -291,7 +297,7 @@ Earn points for participation:
 
 All data is updated monthly and verified for accuracy.""",
             
-            'rewards': """**Civic Rewards System** 🏆
+            'rewards': """**Civic Rewards System**
 
 Earn points for civic engagement:
 - Report issue: 10 points
@@ -309,10 +315,10 @@ Redeem community credits for:
 - Recreation passes (150 credits)
 - Transit credits (75 credits)
 
-Check your progress: **Dashboard** → **Profile**""",
+Check your progress: **Dashboard** > **Profile**""",
             
             'account': """To manage your account:
-1. Go to **Dashboard** → **Settings**
+1. Go to **Dashboard** > **Settings**
 2. You can:
    - Update profile information
    - Change password
@@ -322,15 +328,15 @@ Check your progress: **Dashboard** → **Profile**""",
 
 Need help with something specific? Let me know!""",
             
-            'general': """Hi! I'm your Civic Assistant. 👋
+            'general': """Hi! I'm your Civic Assistant.
 
 I can help you with:
-🔧 Reporting community issues
-🎉 Finding events and volunteering
-💬 Forum discussions and polls
-📊 Government transparency data
-🏆 Understanding the rewards system
-⚙️ Account and settings
+- Reporting community issues
+- Finding events and volunteering
+- Forum discussions and polls
+- Government transparency data
+- Understanding the rewards system
+- Account and settings
 
 What would you like to know about?"""
         }
@@ -342,29 +348,29 @@ What would you like to know about?"""
         
         quick_replies_map = {
             'general': [
-                {'text': '🔧 Report Issue', 'action': 'report_issue'},
-                {'text': '🎉 Find Events', 'action': 'find_events'},
-                {'text': '💬 Forum', 'action': 'forum_help'},
-                {'text': '🏆 My Rewards', 'action': 'rewards'},
+                {'text': 'Report Issue', 'action': 'report_issue'},
+                {'text': 'Find Events', 'action': 'find_events'},
+                {'text': 'Forum', 'action': 'forum_help'},
+                {'text': 'My Rewards', 'action': 'rewards'},
             ],
             'report_issue': [
-                {'text': '➡️ Go to Issues Page', 'action': 'navigate', 'url': '/dashboard/issues/new'},
-                {'text': '❓ More Help', 'action': 'general'},
+                {'text': 'Go to Issues Page', 'action': 'navigate', 'url': '/dashboard/issues/new'},
+                {'text': 'More Help', 'action': 'general'},
             ],
             'find_events': [
-                {'text': '➡️ Browse Events', 'action': 'navigate', 'url': '/dashboard/events'},
-                {'text': '➕ Create Event', 'action': 'navigate', 'url': '/dashboard/events/create'},
+                {'text': 'Browse Events', 'action': 'navigate', 'url': '/dashboard/events'},
+                {'text': 'Create Event', 'action': 'navigate', 'url': '/dashboard/events/create'},
             ],
             'forum_help': [
-                {'text': '➡️ Go to Forum', 'action': 'navigate', 'url': '/dashboard/forum'},
-                {'text': '💡 More Tips', 'action': 'general'},
+                {'text': 'Go to Forum', 'action': 'navigate', 'url': '/dashboard/forum'},
+                {'text': 'More Tips', 'action': 'general'},
             ],
             'transparency': [
-                {'text': '➡️ View Transparency', 'action': 'navigate', 'url': '/dashboard/transparency'},
+                {'text': 'View Transparency', 'action': 'navigate', 'url': '/dashboard/transparency'},
             ],
             'rewards': [
-                {'text': '➡️ My Profile', 'action': 'navigate', 'url': '/dashboard/settings'},
-                {'text': '🏆 Leaderboard', 'action': 'leaderboard'},
+                {'text': 'My Profile', 'action': 'navigate', 'url': '/dashboard/settings'},
+                {'text': 'Leaderboard', 'action': 'leaderboard'},
             ],
         }
         

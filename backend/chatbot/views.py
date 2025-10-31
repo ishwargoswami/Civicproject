@@ -22,68 +22,79 @@ def start_chat_session(request):
     Start a new chat session
     Works for both authenticated and anonymous users
     """
-    user = request.user if request.user.is_authenticated else None
-    session_id = str(uuid.uuid4())
-    
-    # Get user metadata for context
-    user_metadata = {}
-    if user:
-        try:
-            civic_profile = user.civic_profile
-            user_metadata = {
-                'name': user.get_full_name(),
-                'email': user.email,
-                'role': user.role,
-                'level': civic_profile.current_level.level if civic_profile.current_level else 1,
-                'level_name': civic_profile.current_level.name if civic_profile.current_level else 'New Citizen',
-                'points': civic_profile.total_points,
-                'credits': civic_profile.community_credits,
-            }
-        except Exception:
-            user_metadata = {
-                'name': user.get_full_name(),
-                'role': user.role,
-            }
-    
-    # Create session
-    session = ChatSession.objects.create(
-        user=user,
-        session_id=session_id,
-        user_metadata=user_metadata
-    )
-    
-    # Send welcome message
-    ai = get_chatbot_ai()
-    welcome_message = f"""👋 Hi{' ' + user.get_full_name() if user else ''}! I'm your Civic Assistant.
+    try:
+        user = request.user if request.user.is_authenticated else None
+        session_id = str(uuid.uuid4())
+        
+        # Get user metadata for context
+        user_metadata = {}
+        if user:
+            try:
+                civic_profile = user.civic_profile
+                user_metadata = {
+                    'name': user.get_full_name(),
+                    'email': user.email,
+                    'role': user.role,
+                    'level': civic_profile.current_level.level if civic_profile.current_level else 1,
+                    'level_name': civic_profile.current_level.name if civic_profile.current_level else 'New Citizen',
+                    'points': civic_profile.total_points,
+                    'credits': civic_profile.community_credits,
+                }
+            except Exception:
+                user_metadata = {
+                    'name': user.get_full_name(),
+                    'role': user.role,
+                }
+        
+        # Create session
+        session = ChatSession.objects.create(
+            user=user,
+            session_id=session_id,
+            user_metadata=user_metadata
+        )
+        
+        # Send welcome message
+        ai = get_chatbot_ai()
+        welcome_message = f"""Hi{' ' + user.get_full_name() if user else ''}! I'm your Civic Assistant.
 
 I can help you with:
-🔧 Reporting community issues
-🎉 Finding events and volunteering  
-💬 Forum discussions and polls
-📊 Government transparency data
-🏆 Civic rewards and levels
-⚙️ Account settings
+- Reporting community issues
+- Finding events and volunteering  
+- Forum discussions and polls
+- Government transparency data
+- Civic rewards and levels
+- Account settings
 
 What can I help you with today?"""
-    
-    welcome_msg = ChatMessage.objects.create(
-        session=session,
-        sender='bot',
-        message=welcome_message,
-        quick_replies=ai.get_quick_replies('general')
-    )
-    
-    return Response({
-        'session_id': session_id,
-        'message': 'Chat session started',
-        'welcome_message': {
-            'id': welcome_msg.id,
-            'message': welcome_msg.message,
-            'sender': welcome_msg.sender,
-            'quick_replies': welcome_msg.quick_replies,
-            'created_at': welcome_msg.created_at.isoformat()
-        }
-    })
+        
+        welcome_msg = ChatMessage.objects.create(
+            session=session,
+            sender='bot',
+            message=welcome_message,
+            quick_replies=ai.get_quick_replies('general')
+        )
+        
+        return Response({
+            'session_id': session_id,
+            'message': 'Chat session started',
+            'welcome_message': {
+                'id': welcome_msg.id,
+                'message': welcome_msg.message,
+                'sender': welcome_msg.sender,
+                'quick_replies': welcome_msg.quick_replies,
+                'created_at': welcome_msg.created_at.isoformat()
+            }
+        })
+    except Exception as e:
+        # Log the error for debugging
+        print(f"[ERROR] Error starting chat session: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        
+        return Response({
+            'error': 'Failed to start chat session',
+            'detail': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['POST'])

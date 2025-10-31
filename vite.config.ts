@@ -8,7 +8,7 @@ export default defineConfig({
     exclude: ['lucide-react'],
   },
   server: {
-    host: 'localhost', // Localhost only
+    host: '0.0.0.0', // Allow network access for mobile testing
     port: 5173,
   },
 });
