@@ -8,7 +8,8 @@ import {
   Clock, 
   Star,
   Globe,
-  User
+  User,
+  Edit
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { EventListItem } from '../../services/eventsApi';
@@ -16,9 +17,11 @@ import { EventListItem } from '../../services/eventsApi';
 interface EventCardProps {
   event: EventListItem;
   className?: string;
+  canManage?: boolean;
+  onEdit?: (eventId: string) => void;
 }
 
-const EventCard: React.FC<EventCardProps> = ({ event, className = '' }) => {
+const EventCard: React.FC<EventCardProps> = ({ event, className = '', canManage = false, onEdit }) => {
   const getStatusColor = () => {
     if (event.is_past) return 'bg-gray-100 text-gray-600';
     if (event.is_ongoing) return 'bg-green-100 text-green-700';
@@ -182,19 +185,33 @@ const EventCard: React.FC<EventCardProps> = ({ event, className = '' }) => {
           </div>
         )}
 
-        {/* Action Button */}
-        <Link
-          to={`/dashboard/events/${event.id}`}
-          className="block w-full"
-        >
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200"
+        {/* Action Buttons */}
+        <div className="flex gap-2">
+          {canManage && onEdit && (
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => onEdit(event.id)}
+              className="flex-shrink-0 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 font-medium py-3 px-4 rounded-lg transition-colors duration-200 flex items-center gap-2"
+              title="Edit Event"
+            >
+              <Edit className="h-4 w-4" />
+              Edit
+            </motion.button>
+          )}
+          <Link
+            to={`/dashboard/events/${event.id}`}
+            className="block flex-1"
           >
-            View Details
-          </motion.button>
-        </Link>
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200"
+            >
+              View Details
+            </motion.button>
+          </Link>
+        </div>
       </div>
     </motion.div>
   );

@@ -1,10 +1,11 @@
 from rest_framework import viewsets, status
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.db.models import Sum, Count, Avg, Q, F
 from django.db.models.functions import TruncMonth, TruncYear
 from django.utils import timezone
+from django.shortcuts import get_object_or_404
 from datetime import datetime, timedelta
 import calendar
 
@@ -155,22 +156,41 @@ class PublicSpendingViewSet(viewsets.ReadOnlyModelViewSet):
         return Response(serializer.data)
 
 
-class PublicProjectViewSet(viewsets.ReadOnlyModelViewSet):
+class PublicProjectViewSet(viewsets.ModelViewSet):
     serializer_class = PublicProjectSerializer
-    permission_classes = [AllowAny]  # Allow public access for transparency
+    
+    def get_permissions(self):
+        """Allow public read access, require authentication for updates"""
+        if self.action in ['list', 'retrieve', 'status_distribution', 'overdue']:
+            return [AllowAny()]
+        return [IsAuthenticated()]
     
     def get_queryset(self):
-        queryset = PublicProject.objects.filter(is_public=True).select_related(
-            'department', 'category', 'manager'
-        ).prefetch_related('milestones')
+        # For read operations, show public projects
+        if self.action in ['list', 'retrieve', 'status_distribution', 'overdue']:
+            queryset = PublicProject.objects.filter(is_public=True).select_related(
+                'department', 'category', 'manager'
+            ).prefetch_related('milestones')
+        else:
+            # For update operations, show user's department projects
+            if self.request.user.is_authenticated:
+                # Use department_name field directly from User model
+                if self.request.user.department_name:
+                    queryset = PublicProject.objects.filter(
+                        department__name=self.request.user.department_name
+                    ).select_related('department', 'category', 'manager').prefetch_related('milestones')
+                else:
+                    queryset = PublicProject.objects.none()
+            else:
+                queryset = PublicProject.objects.none()
         
         # Filter parameters
-        status = self.request.query_params.get('status')
+        status_param = self.request.query_params.get('status')
         department = self.request.query_params.get('department')
         category = self.request.query_params.get('category')
         
-        if status:
-            queryset = queryset.filter(status=status)
+        if status_param:
+            queryset = queryset.filter(status=status_param)
         if department:
             queryset = queryset.filter(department__slug=department)
         if category:
@@ -206,6 +226,70 @@ class PublicProjectViewSet(viewsets.ReadOnlyModelViewSet):
         
         serializer = PublicProjectSummarySerializer(queryset, many=True)
         return Response(serializer.data)
+    
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    def update_progress(self, request, pk=None):
+        """Update project progress and status (officials only)"""
+        project = self.get_object()
+        user = request.user
+        
+        # Check permissions - only officials from the same department or admins
+        if user.role not in ['official', 'admin']:
+            return Response(
+                {'error': 'Only officials can update projects'}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        if user.role == 'official':
+            # Check if user has a department assigned and it matches the project's department
+            if not user.department_name or user.department_name != project.department.name:
+                return Response(
+                    {'error': 'You can only update projects from your department'}, 
+                    status=status.HTTP_403_FORBIDDEN
+                )
+        
+        # Update progress
+        progress = request.data.get('progress_percentage')
+        if progress is not None:
+            if not (0 <= progress <= 100):
+                return Response(
+                    {'error': 'Progress must be between 0 and 100'}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            project.progress_percentage = progress
+        
+        # Update status
+        new_status = request.data.get('status')
+        if new_status:
+            if new_status not in dict(PublicProject.PROJECT_STATUSES):
+                return Response(
+                    {'error': 'Invalid status'}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            project.status = new_status
+            
+            # If marking as completed, set actual end date
+            if new_status == 'completed' and not project.actual_end_date:
+                project.actual_end_date = timezone.now().date()
+        
+        project.save()
+        
+        # Create a milestone for this update if comment provided
+        comment = request.data.get('comment')
+        if comment:
+            ProjectMilestone.objects.create(
+                project=project,
+                title=f"Progress Update: {progress}%" if progress else "Status Update",
+                description=comment,
+                status='completed' if new_status == 'completed' else 'in_progress',
+                completed_at=timezone.now() if new_status == 'completed' else None
+            )
+        
+        serializer = self.get_serializer(project)
+        return Response({
+            'message': 'Project updated successfully',
+            'project': serializer.data
+        })
     
     @action(detail=False, methods=['get'])
     def over_budget(self, request):
@@ -257,6 +341,80 @@ class PublicDocumentViewSet(viewsets.ReadOnlyModelViewSet):
             queryset = queryset.filter(department__slug=department)
             
         return queryset
+
+
+# Standalone view for project updates (works without server restart)
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def update_project_progress(request, pk):
+    """Update project progress and status (officials only)"""
+    try:
+        project = get_object_or_404(PublicProject, pk=pk)
+        user = request.user
+        
+        # Check permissions - only officials from the same department or admins
+        if user.role not in ['official', 'admin']:
+            return Response(
+                {'error': 'Only officials can update projects'}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        if user.role == 'official':
+            # Check if user has a department assigned and it matches the project's department
+            if not user.department_name or user.department_name != project.department.name:
+                return Response(
+                    {'error': 'You can only update projects from your department'}, 
+                    status=status.HTTP_403_FORBIDDEN
+                )
+        
+        # Update progress
+        progress = request.data.get('progress_percentage')
+        if progress is not None:
+            if not (0 <= progress <= 100):
+                return Response(
+                    {'error': 'Progress must be between 0 and 100'}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            project.progress_percentage = progress
+        
+        # Update status
+        new_status = request.data.get('status')
+        if new_status:
+            if new_status not in dict(PublicProject.PROJECT_STATUSES):
+                return Response(
+                    {'error': 'Invalid status'}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            project.status = new_status
+            
+            # If marking as completed, set actual end date
+            if new_status == 'completed' and not project.actual_end_date:
+                project.actual_end_date = timezone.now().date()
+        
+        project.save()
+        
+        # Create a milestone for this update if comment provided
+        comment = request.data.get('comment')
+        if comment:
+            ProjectMilestone.objects.create(
+                project=project,
+                title=f"Progress Update: {progress}%" if progress else "Status Update",
+                description=comment,
+                status='completed' if new_status == 'completed' else 'in_progress',
+                completed_at=timezone.now() if new_status == 'completed' else None
+            )
+        
+        from .serializers import PublicProjectSerializer
+        serializer = PublicProjectSerializer(project)
+        return Response({
+            'message': 'Project updated successfully',
+            'project': serializer.data
+        })
+    except Exception as e:
+        return Response(
+            {'error': str(e)}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 
 class TransparencyDashboardViewSet(viewsets.ViewSet):

@@ -198,6 +198,19 @@ export const assignIssue = createAsyncThunk(
   }
 );
 
+// Helper action to assign issue to self
+export const assignIssueToSelf = createAsyncThunk(
+  'officials/assignIssueToSelf',
+  async (issueId: string, { rejectWithValue }) => {
+    try {
+      const response = await officialsAPI.assignIssue(issueId);
+      return { issueId, ...response.data };
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to assign issue');
+    }
+  }
+);
+
 export const updateIssuePriority = createAsyncThunk(
   'officials/updateIssuePriority',
   async ({ issueId, priority }: { issueId: string; priority: string }, { rejectWithValue }) => {
@@ -209,6 +222,9 @@ export const updateIssuePriority = createAsyncThunk(
     }
   }
 );
+
+// Alias for clarity in dashboard
+export const updateIssuePriorityAction = updateIssuePriority;
 
 export const fetchDepartmentProjects = createAsyncThunk(
   'officials/fetchDepartmentProjects',
@@ -326,6 +342,22 @@ const officialsSlice = createSlice({
         );
       })
       .addCase(assignIssue.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      // Assign Issue to Self
+      .addCase(assignIssueToSelf.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(assignIssueToSelf.fulfilled, (state, action) => {
+        state.isLoading = false;
+        // Remove from unassigned issues
+        state.unassignedIssues = state.unassignedIssues.filter(
+          issue => issue.id !== action.payload.issueId
+        );
+      })
+      .addCase(assignIssueToSelf.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       })

@@ -112,22 +112,30 @@ const UnauthorizedPage: React.FC = () => {
 
 const AppRouter: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { isAuthenticated, isLoading } = useSelector((state: RootState) => state.auth);
+  const { isAuthenticated, isLoading, user } = useSelector((state: RootState) => state.auth);
+  const [initialCheckDone, setInitialCheckDone] = React.useState(false);
 
   useEffect(() => {
-    // Temporarily disabled to prevent redirect loops during development
-    // with mock authentication data
-    // const storedToken = localStorage.getItem('token');
+    // Check if user has a token and fetch their data on initial mount
+    const storedToken = localStorage.getItem('token');
     
-    // if (storedToken && !isAuthenticated && !isLoading) {
-    //   dispatch(getCurrentUser()).catch((error) => {
-    //     localStorage.removeItem('token');
-    //     localStorage.removeItem('refreshToken');
-    //   });
-    // }
+    if (storedToken && !isAuthenticated && !user) {
+      dispatch(getCurrentUser())
+        .catch((error) => {
+          // If token is invalid, clear it
+          localStorage.removeItem('token');
+          localStorage.removeItem('refreshToken');
+        })
+        .finally(() => {
+          setInitialCheckDone(true);
+        });
+    } else {
+      setInitialCheckDone(true);
+    }
   }, [dispatch]);
 
-  if (isLoading) {
+  // Show loading screen during initial authentication check
+  if (!initialCheckDone || (isLoading && !user)) {
     return <LoadingScreen />;
   }
 

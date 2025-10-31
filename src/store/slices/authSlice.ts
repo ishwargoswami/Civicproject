@@ -33,21 +33,16 @@ interface AuthState {
   } | null;
 }
 
+// Check if user has a valid token on initial load
+const storedToken = localStorage.getItem('token');
+const hasToken = !!storedToken;
+
 const initialState: AuthState = {
-  // Mock user for testing - remove this in production
-  user: {
-    id: '1',
-    email: 'test@example.com',
-    first_name: 'Test',
-    last_name: 'User',
-    role: 'citizen',
-    is_verified: true,
-    full_name: 'Test User'
-  },
-  token: localStorage.getItem('token') || 'mock-token',
-  isLoading: false,
+  user: null,
+  token: storedToken,
+  isLoading: hasToken, // If we have a token, we're loading to verify it
   error: null,
-  isAuthenticated: true, // Mock authentication for testing
+  isAuthenticated: false, // Will be set to true after verification
   otpSent: false,
   otpVerified: false,
   pendingEmail: null,

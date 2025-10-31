@@ -27,7 +27,12 @@ import { EventFilters } from '../services/eventsApi';
 const Events: React.FC = () => {
   const dispatch = useAppDispatch();
   const eventsState = useAppSelector((state) => state.events);
-  const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+  
+  // Role-based capabilities
+  const isOfficial = user?.role === 'official';
+  const isAdmin = user?.role === 'admin';
+  const canManageEvents = isOfficial || isAdmin;
 
   // Defensive handling in case the store is not properly initialized
   const { 
@@ -108,6 +113,11 @@ const Events: React.FC = () => {
     setSelectedCategory('all');
     dispatch(clearFilters());
   };
+  
+  const handleEditEvent = (eventId: string) => {
+    // Navigate to event edit page (to be created) or show modal
+    window.location.href = `/dashboard/events/${eventId}/edit`;
+  };
 
   return (
     <div className="min-h-screen bg-black text-white p-6">
@@ -119,12 +129,13 @@ const Events: React.FC = () => {
             <p className="text-gray-400">Discover events and volunteer opportunities</p>
           </div>
           
-          {isAuthenticated && (
+          {canManageEvents && (
             <Link to="/dashboard/events/create">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium flex items-center space-x-2"
+                title="Officials and Admins can create events"
               >
                 <Plus className="h-5 w-5" />
                 <span>Create Event</span>
@@ -318,13 +329,23 @@ const Events: React.FC = () => {
                   ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" 
                   : "space-y-6"
               }>
-                {events.map((event) => (
-                  <EventCard 
-                    key={event.id} 
-                    event={event} 
-                    className={viewMode === 'list' ? 'max-w-none' : ''}
-                  />
-                ))}
+                {events.map((event) => {
+                  // Officials can manage events from their department or that they created
+                  const canManageThisEvent = canManageEvents && (
+                    event.organizer_id === user?.id || 
+                    (user?.department_name && event.organizer_department === user.department_name)
+                  );
+                  
+                  return (
+                    <EventCard 
+                      key={event.id} 
+                      event={event} 
+                      className={viewMode === 'list' ? 'max-w-none' : ''}
+                      canManage={canManageThisEvent}
+                      onEdit={handleEditEvent}
+                    />
+                  );
+                })}
               </div>
             ) : (
               <div className="text-center py-12">

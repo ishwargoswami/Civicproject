@@ -172,7 +172,8 @@ export const updateIssueStatus = createAsyncThunk(
     comment?: string;
   }, { rejectWithValue }) => {
     try {
-      const response = await issuesAPI.updateIssueStatus(issueId, status, comment);
+      // Use the correct backend endpoint: POST /issues/{id}/update_status/
+      const response = await issuesAPI.updateStatus(issueId, status);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to update issue status');

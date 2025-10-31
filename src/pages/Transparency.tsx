@@ -13,7 +13,8 @@ import {
   Users,
   Filter,
   Download,
-  RefreshCw
+  RefreshCw,
+  Edit
 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../store';
 import {
@@ -41,6 +42,7 @@ import DocumentViewer from '../components/transparency/DocumentViewer';
 
 const Transparency: React.FC = () => {
   const dispatch = useAppDispatch();
+  const { user } = useAppSelector((state) => state.auth);
   const {
     dashboardStats,
     departments,
@@ -59,6 +61,11 @@ const Transparency: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState<'overview' | 'spending' | 'projects' | 'metrics' | 'documents'>('overview');
   const [showFilters, setShowFilters] = useState(false);
+  
+  // Role-based capabilities
+  const isOfficial = user?.role === 'official';
+  const isAdmin = user?.role === 'admin';
+  const canManageProjects = isOfficial || isAdmin;
 
   useEffect(() => {
     // Load initial data
@@ -356,39 +363,74 @@ const Transparency: React.FC = () => {
           
           {/* Projects List */}
           <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-            <h3 className="text-xl font-semibold text-white mb-6">Recent Projects</h3>
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-semibold text-white">Recent Projects</h3>
+              {canManageProjects && (
+                <span className="text-sm text-blue-400">
+                  ✏️ You can update projects from your department
+                </span>
+              )}
+            </div>
             {projects.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {projects.slice(0, 6).map((project) => (
-                  <div key={project.id} className="bg-white/5 border border-white/10 rounded-lg p-4">
-                    <h4 className="text-white font-medium mb-2">{project.name}</h4>
-                    <div className="mb-3">
-                      <div className="flex justify-between text-sm text-gray-400 mb-1">
-                        <span>Progress</span>
-                        <span>{project.progress_percentage}%</span>
+                {projects.slice(0, 6).map((project) => {
+                  // Check if official can manage this project (same department)
+                  const canManageThisProject = canManageProjects && 
+                    project.department && 
+                    user?.department_name && 
+                    project.department.name === user.department_name;
+                  
+                  return (
+                    <div key={project.id} className="bg-white/5 border border-white/10 rounded-lg p-4 relative">
+                      <h4 className="text-white font-medium mb-2 pr-8">{project.name}</h4>
+                      
+                      {canManageThisProject && (
+                        <button
+                          className="absolute top-4 right-4 p-1.5 rounded bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 transition-colors"
+                          title="Update Project"
+                          onClick={() => {
+                            // Navigate to official dashboard to update
+                            window.location.href = `/dashboard/official?updateProject=${project.id}`;
+                          }}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                      )}
+                      
+                      <div className="mb-3">
+                        <div className="flex justify-between text-sm text-gray-400 mb-1">
+                          <span>Progress</span>
+                          <span>{project.progress_percentage}%</span>
+                        </div>
+                        <div className="w-full bg-gray-700 rounded-full h-2">
+                          <div 
+                            className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                            style={{ width: `${project.progress_percentage}%` }}
+                          />
+                        </div>
                       </div>
-                      <div className="w-full bg-gray-700 rounded-full h-2">
-                        <div 
-                          className="bg-blue-500 h-2 rounded-full transition-all duration-300"
-                          style={{ width: `${project.progress_percentage}%` }}
-                        />
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center text-sm">
+                          <span className={`px-2 py-1 rounded-full text-xs ${
+                            project.status === 'completed' ? 'bg-green-500/20 text-green-400' :
+                            project.status === 'in_progress' ? 'bg-blue-500/20 text-blue-400' :
+                            project.status === 'approved' ? 'bg-yellow-500/20 text-yellow-400' :
+                            'bg-gray-500/20 text-gray-400'
+                          }`}>
+                            {project.status.replace('_', ' ')}
+                          </span>
+                          <span className="text-gray-400">
+                            {formatCurrency(project.budget_allocated)}
+                          </span>
+                        </div>
+                        <div className="text-xs text-gray-500 flex items-center gap-1">
+                          <Building2 className="w-3 h-3" />
+                          {project.department?.name || 'No department'}
+                        </div>
                       </div>
                     </div>
-                    <div className="flex justify-between items-center text-sm">
-                      <span className={`px-2 py-1 rounded-full text-xs ${
-                        project.status === 'completed' ? 'bg-green-500/20 text-green-400' :
-                        project.status === 'in_progress' ? 'bg-blue-500/20 text-blue-400' :
-                        project.status === 'approved' ? 'bg-yellow-500/20 text-yellow-400' :
-                        'bg-gray-500/20 text-gray-400'
-                      }`}>
-                        {project.status.replace('_', ' ')}
-                      </span>
-                      <span className="text-gray-400">
-                        {formatCurrency(project.budget_allocated)}
-                      </span>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <p className="text-gray-400 text-center py-8">No projects found</p>

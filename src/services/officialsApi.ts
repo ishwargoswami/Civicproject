@@ -85,6 +85,19 @@ export const officialsAPI = {
   getRecentActivities: () => {
     return apiClient.get('/auth/officials/recent-activities/');
   },
+
+  /**
+   * Update project progress and status
+   * @param projectId - Project UUID
+   * @param data - Update data (progress_percentage, status, comment)
+   */
+  updateProject: (projectId: string, data: {
+    progress_percentage?: number;
+    status?: string;
+    comment?: string;
+  }) => {
+    return apiClient.post(`/transparency/projects/${projectId}/update_progress/`, data);
+  },
 };
 
 export default officialsAPI;
