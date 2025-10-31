@@ -15,7 +15,8 @@ import {
   Menu,
   X,
   User,
-  Heart
+  Heart,
+  Trophy
 } from 'lucide-react';
 import { RootState, AppDispatch } from '../../store';
 import { logout } from '../../store/slices/authSlice';
@@ -70,6 +71,12 @@ const DashboardLayout: React.FC = () => {
       name: 'Transparency',
       href: '/dashboard/transparency',
       icon: BarChart3,
+      roles: ['citizen', 'official', 'admin']
+    },
+    {
+      name: 'Rewards',
+      href: '/dashboard/rewards',
+      icon: Trophy,
       roles: ['citizen', 'official', 'admin']
     },
     {

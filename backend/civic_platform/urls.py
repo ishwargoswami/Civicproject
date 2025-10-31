@@ -24,6 +24,7 @@ urlpatterns = [
     path('api/notifications/', include('notifications.urls')),
     path('api/transparency/', include('transparency.urls')),
     path('api/maps/', include('maps.urls')),
+    path('api/chatbot/', include('chatbot.urls')),
     
     # JWT Token refresh
     path('api/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),

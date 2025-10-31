@@ -1,0 +1,14 @@
+# AI Chatbot Dependencies
+# Install with: pip install -r requirements-chatbot.txt
+
+# Option 1: OpenAI (paid, best quality)
+openai>=1.0.0
+
+# Option 2: Google Gemini (free, good quality)
+google-generativeai>=0.3.0
+
+# Choose one or both based on your preference
+# Set environment variables:
+# - OPENAI_API_KEY for OpenAI
+# - GEMINI_API_KEY for Google Gemini
+

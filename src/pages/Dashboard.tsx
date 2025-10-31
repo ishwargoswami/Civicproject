@@ -31,6 +31,7 @@ import { RootState, AppDispatch } from '../store';
 import { fetchIssues } from '../store/slices/issuesSlice';
 import { fetchPosts } from '../store/slices/forumSlice';
 import { fetchEvents } from '../store/slices/eventsSlice';
+import ProfileWidget from '../components/gamification/ProfileWidget';
 
 const Dashboard: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -275,27 +276,35 @@ const Dashboard: React.FC = () => {
       {/* Overview Tab */}
       {activeTab === 'overview' && (
         <div className="space-y-8">
-          {/* Personal Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {personalStats.map((stat, index) => (
-              <motion.div
-                key={stat.title}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className={`${stat.bgColor} ${stat.borderColor} border rounded-xl p-6`}
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <div className={`p-3 ${stat.bgColor} rounded-lg`}>
-                    <stat.icon className={`h-6 w-6 ${stat.color}`} />
+          {/* Personal Stats and Gamification */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Personal Stats - 2/3 width */}
+            <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+              {personalStats.map((stat, index) => (
+                <motion.div
+                  key={stat.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  className={`${stat.bgColor} ${stat.borderColor} border rounded-xl p-6`}
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <div className={`p-3 ${stat.bgColor} rounded-lg`}>
+                      <stat.icon className={`h-6 w-6 ${stat.color}`} />
+                    </div>
                   </div>
-                </div>
-                <h3 className="text-2xl font-bold text-white mb-1">{stat.value}</h3>
-                <p className="text-gray-400 text-sm mb-2">{stat.title}</p>
-                <p className="text-xs text-blue-400 mb-2">{stat.change}</p>
-                <p className="text-xs text-gray-500">{stat.details}</p>
-              </motion.div>
-            ))}
+                  <h3 className="text-2xl font-bold text-white mb-1">{stat.value}</h3>
+                  <p className="text-gray-400 text-sm mb-2">{stat.title}</p>
+                  <p className="text-xs text-blue-400 mb-2">{stat.change}</p>
+                  <p className="text-xs text-gray-500">{stat.details}</p>
+                </motion.div>
+              ))}
+            </div>
+            
+            {/* Gamification Profile Widget - 1/3 width */}
+            <div className="lg:col-span-1">
+              <ProfileWidget />
+            </div>
           </div>
 
           {/* Quick Actions */}

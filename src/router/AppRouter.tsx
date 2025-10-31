@@ -41,6 +41,10 @@ import TransparencyPage from '../pages/Transparency';
 import SettingsPage from '../pages/Settings';
 import DebugAuth from '../pages/DebugAuth';
 import TestOTP from '../pages/TestOTP';
+import GamificationPage from '../pages/Gamification';
+
+// Chatbot
+import ChatWidget from '../components/chatbot/ChatWidget';
 
 // Landing Page Component
 const LandingPage: React.FC = () => {
@@ -192,6 +196,9 @@ const AppRouter: React.FC = () => {
           {/* Transparency routes */}
           <Route path="transparency" element={<TransparencyPage />} />
           
+          {/* Gamification routes */}
+          <Route path="rewards" element={<GamificationPage />} />
+          
           {/* User routes */}
           {/* Notifications removed - available in Settings page */}
           <Route path="settings" element={<SettingsPage />} />
@@ -238,6 +245,9 @@ const AppRouter: React.FC = () => {
         {/* Catch all route */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      
+      {/* AI Chatbot - Available on all pages */}
+      <ChatWidget />
     </Router>
   );
 };

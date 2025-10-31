@@ -32,4 +32,7 @@ urlpatterns = [
     
     # Officials
     path('officials/', include('accounts.urls_officials')),
+    
+    # Gamification
+    path('gamification/', include('accounts.urls_gamification')),
 ]

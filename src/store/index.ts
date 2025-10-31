@@ -8,6 +8,8 @@ import notificationsSlice from './slices/notificationsSlice';
 import mapsSlice from './slices/mapsSlice';
 import transparencySlice from './slices/transparencySlice';
 import officialsSlice from './slices/officialsSlice';
+import chatbotSlice from './slices/chatbotSlice';
+import gamificationSlice from './slices/gamificationSlice';
 
 export const store = configureStore({
   reducer: {
@@ -19,6 +21,8 @@ export const store = configureStore({
     maps: mapsSlice,
     transparency: transparencySlice,
     officials: officialsSlice,
+    chatbot: chatbotSlice,
+    gamification: gamificationSlice,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
