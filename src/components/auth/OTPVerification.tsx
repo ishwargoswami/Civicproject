@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Shield, RefreshCw, CheckCircle, AlertCircle, Heart } from 'lucide-react';
 
@@ -197,10 +198,10 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
           transition={{ duration: 0.5 }}
           className="text-center"
         >
-          <div className="flex items-center justify-center space-x-2 mb-4">
+          <Link to="/" className="flex items-center justify-center space-x-2 mb-4 hover:opacity-80 transition-opacity">
             <Heart className="h-10 w-10 text-blue-500" />
             <span className="text-2xl font-bold text-white">Civic Platform</span>
-          </div>
+          </Link>
           <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
             <Shield className="h-10 w-10 text-white" />
           </div>

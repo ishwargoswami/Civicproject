@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { BookOpen, Download, ExternalLink, FileText, Video, Code } from 'lucide-react';
 
 const Resources = () => {
+  const [downloading, setDownloading] = useState(false);
   const resourceCategories = [
     {
       icon: Code,
@@ -110,12 +111,57 @@ const Resources = () => {
             and community engagement strategies.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-3 rounded-full font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-lg flex items-center space-x-2 mx-auto sm:mx-0">
-              <Download className="h-5 w-5" />
-              <span>Download Toolkit</span>
+            <button 
+              onClick={async () => {
+                setDownloading(true);
+                try {
+                  // Simulate download (replace with actual file URL when available)
+                  const link = document.createElement('a');
+                  link.href = '/civic-tech-toolkit.pdf'; // Replace with actual file path
+                  link.download = 'civic-tech-toolkit.pdf';
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                  
+                  // Show success message
+                  setTimeout(() => {
+                    alert('✅ Toolkit download started! Check your downloads folder.');
+                    setDownloading(false);
+                  }, 1000);
+                } catch (error) {
+                  alert('❌ Download failed. Please try again or contact support.');
+                  setDownloading(false);
+                }
+              }}
+              disabled={downloading}
+              className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-3 rounded-full font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-lg flex items-center justify-center space-x-2 mx-auto sm:mx-0 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {downloading ? (
+                <>
+                  <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>Downloading...</span>
+                </>
+              ) : (
+                <>
+                  <Download className="h-5 w-5" />
+                  <span>Download Toolkit</span>
+                </>
+              )}
             </button>
-            <button className="border border-white/20 text-white px-8 py-3 rounded-full font-semibold hover:bg-white/10 transition-all duration-200">
-              View Documentation
+            <button 
+              onClick={() => {
+                // Scroll to resources section or open documentation
+                const resourcesSection = document.getElementById('resources');
+                if (resourcesSection) {
+                  resourcesSection.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                  // Alternative: Open external documentation
+                  window.open('https://docs.civictech.org', '_blank');
+                }
+              }}
+              className="border border-white/20 text-white px-8 py-3 rounded-full font-semibold hover:bg-white/10 transition-all duration-200 flex items-center justify-center space-x-2"
+            >
+              <span>View Documentation</span>
             </button>
           </div>
         </motion.div>

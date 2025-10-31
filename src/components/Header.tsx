@@ -32,8 +32,10 @@ const Header = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <Heart className="h-8 w-8 text-blue-500" />
-            <span className="text-xl font-bold text-white">Social Good & Civic Tech</span>
+            <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
+              <Heart className="h-8 w-8 text-blue-500" />
+              <span className="text-xl font-bold text-white">Social Good & Civic Tech</span>
+            </Link>
           </motion.div>
 
           {/* Desktop Navigation */}

@@ -58,10 +58,10 @@ const LoginForm: React.FC = () => {
           transition={{ duration: 0.5 }}
           className="text-center"
         >
-          <div className="flex items-center justify-center space-x-2 mb-4">
+          <Link to="/" className="flex items-center justify-center space-x-2 mb-4 hover:opacity-80 transition-opacity">
             <Heart className="h-10 w-10 text-blue-500" />
             <span className="text-2xl font-bold text-white">Civic Platform</span>
-          </div>
+          </Link>
           <h2 className="text-3xl font-bold text-white">Welcome back</h2>
           <p className="mt-2 text-gray-400">Sign in to your account to continue</p>
         </motion.div>
