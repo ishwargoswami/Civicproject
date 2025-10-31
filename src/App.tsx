@@ -2,6 +2,9 @@ import React, { useEffect } from 'react';
 import { Provider } from 'react-redux';
 import { store } from './store';
 import AppRouter from './router/AppRouter';
+import PWAInstallPrompt from './components/common/PWAInstallPrompt';
+import PWAUpdatePrompt from './components/common/PWAUpdatePrompt';
+import OfflineBanner from './components/common/OfflineBanner';
 
 function App() {
   useEffect(() => {
@@ -24,6 +27,11 @@ function App() {
   return (
     <Provider store={store}>
       <AppRouter />
+      
+      {/* PWA Components */}
+      <PWAInstallPrompt />
+      <PWAUpdatePrompt />
+      <OfflineBanner />
     </Provider>
   );
 }

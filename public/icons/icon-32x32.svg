@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="32" height="32" fill="#3B82F6" rx="3.2"/>
+  
+  <!-- City/Community Icon -->
+  <g transform="translate(4.8, 6.4)">
+    <!-- Buildings -->
+    <rect x="1.6" y="9.6" width="4.8" height="9.6" fill="#FFFFFF" opacity="0.9"/>
+    <rect x="8" y="6.4" width="4.8" height="12.8" fill="#FFFFFF" opacity="0.9"/>
+    <rect x="14.4" y="8" width="4.8" height="11.2" fill="#FFFFFF" opacity="0.9"/>
+    
+    <!-- Windows -->
+    <rect x="2.56" y="11.2" width="0.96" height="1.28" fill="#3B82F6"/>
+    <rect x="4.48" y="11.2" width="0.96" height="1.28" fill="#3B82F6"/>
+    <rect x="2.56" y="14.4" width="0.96" height="1.28" fill="#3B82F6"/>
+    <rect x="4.48" y="14.4" width="0.96" height="1.28" fill="#3B82F6"/>
+    
+    <rect x="8.96" y="8" width="0.96" height="1.28" fill="#3B82F6"/>
+    <rect x="10.88" y="8" width="0.96" height="1.28" fill="#3B82F6"/>
+    <rect x="8.96" y="11.2" width="0.96" height="1.28" fill="#3B82F6"/>
+    <rect x="10.88" y="11.2" width="0.96" height="1.28" fill="#3B82F6"/>
+    
+    <rect x="15.36" y="9.6" width="0.96" height="1.28" fill="#3B82F6"/>
+    <rect x="17.28" y="9.6" width="0.96" height="1.28" fill="#3B82F6"/>
+    <rect x="15.36" y="12.8" width="0.96" height="1.28" fill="#3B82F6"/>
+    <rect x="17.28" y="12.8" width="0.96" height="1.28" fill="#3B82F6"/>
+  </g>
+  
+  <!-- Text/Badge -->
+  <text x="16" y="27.2" font-family="Arial, sans-serif" font-size="4.8" font-weight="bold" fill="#FFFFFF" text-anchor="middle">CIVIC</text>
+</svg>

@@ -1,0 +1,109 @@
+{
+  "name": "Civic Platform - Social Good & Community Engagement",
+  "short_name": "Civic Platform",
+  "description": "Connect citizens, officials, and community leaders for social impact",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#3B82F6",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icons/icon-72x72.svg",
+      "sizes": "72x72",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-96x96.svg",
+      "sizes": "96x96",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-128x128.svg",
+      "sizes": "128x128",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-144x144.svg",
+      "sizes": "144x144",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-152x152.svg",
+      "sizes": "152x152",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-192x192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-384x384.svg",
+      "sizes": "384x384",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["social", "government", "community"],
+  "screenshots": [
+    {
+      "src": "/screenshots/desktop-1.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "/screenshots/mobile-1.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Report Issue",
+      "short_name": "Report",
+      "description": "Report a community issue",
+      "url": "/dashboard/issues/new",
+      "icons": [{ "src": "/icons/shortcut-report.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "View Events",
+      "short_name": "Events",
+      "description": "Browse community events",
+      "url": "/dashboard/events",
+      "icons": [{ "src": "/icons/shortcut-events.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Community Forum",
+      "short_name": "Forum",
+      "description": "Join community discussions",
+      "url": "/dashboard/forum",
+      "icons": [{ "src": "/icons/shortcut-forum.png", "sizes": "96x96" }]
+    }
+  ],
+  "share_target": {
+    "action": "/dashboard/issues/new",
+    "method": "GET",
+    "enctype": "application/x-www-form-urlencoded",
+    "params": {
+      "title": "title",
+      "text": "description",
+      "url": "url"
+    }
+  }
+}
+

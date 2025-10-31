@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PWA Setup Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+        h1 { margin-top: 0; }
+        .test-item {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            border-left: 4px solid #4CAF50;
+        }
+        .test-item.fail {
+            border-left-color: #f44336;
+        }
+        .test-item h3 {
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .icon-preview {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            margin: 5px;
+            display: inline-block;
+            background: white;
+            padding: 5px;
+        }
+        .status {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status.pass { background: #4CAF50; }
+        .status.fail { background: #f44336; }
+        .button {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .button:hover { background: #45a049; }
+        .button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎉 PWA Setup Verification</h1>
+        <p>This page tests your Progressive Web App configuration.</p>
+
+        <div id="results"></div>
+
+        <div style="margin-top: 30px;">
+            <button class="button" onclick="testNotifications()">Test Notifications</button>
+            <button class="button" onclick="testOffline()">Test Offline Mode</button>
+            <button class="button" onclick="location.reload()">Refresh Tests</button>
+        </div>
+
+        <div style="margin-top: 30px; background: rgba(0,0,0,0.2); padding: 20px; border-radius: 8px;">
+            <h3>📋 Next Steps:</h3>
+            <ol>
+                <li>Check all tests pass ✅</li>
+                <li>Open DevTools (F12) → Application tab</li>
+                <li>Verify Service Worker is registered</li>
+                <li>Check Manifest is loaded correctly</li>
+                <li>Test on mobile device for best results</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        const results = document.getElementById('results');
+
+        async function runTests() {
+            const tests = [
+                {
+                    name: 'Service Worker Support',
+                    test: () => 'serviceWorker' in navigator,
+                    details: 'Browser supports Service Workers'
+                },
+                {
+                    name: 'Service Worker Registration',
+                    test: async () => {
+                        const registration = await navigator.serviceWorker.getRegistration();
+                        return !!registration;
+                    },
+                    details: 'Service Worker is registered'
+                },
+                {
+                    name: 'Manifest File',
+                    test: async () => {
+                        const response = await fetch('/manifest.json');
+                        return response.ok;
+                    },
+                    details: 'Web App Manifest is accessible'
+                },
+                {
+                    name: 'Icon Files',
+                    test: async () => {
+                        const response = await fetch('/icons/icon-192x192.svg');
+                        return response.ok;
+                    },
+                    details: 'PWA icons are available'
+                },
+                {
+                    name: 'Notifications Support',
+                    test: () => 'Notification' in window,
+                    details: 'Browser supports notifications'
+                },
+                {
+                    name: 'Install Prompt Available',
+                    test: () => window.matchMedia('(display-mode: standalone)').matches || !window.matchMedia('(display-mode: browser)').matches,
+                    details: 'App can be installed or is already installed'
+                },
+                {
+                    name: 'HTTPS or Localhost',
+                    test: () => location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1',
+                    details: 'Running in secure context (required for PWA)'
+                }
+            ];
+
+            results.innerHTML = '<h2>🔍 Running Tests...</h2>';
+
+            let html = '<h2>📊 Test Results</h2>';
+            let passCount = 0;
+
+            for (const test of tests) {
+                try {
+                    const passed = await test.test();
+                    if (passed) passCount++;
+                    
+                    html += `
+                        <div class="test-item ${passed ? 'pass' : 'fail'}">
+                            <h3>
+                                ${passed ? '✅' : '❌'} ${test.name}
+                                <span class="status ${passed ? 'pass' : 'fail'}">${passed ? 'PASS' : 'FAIL'}</span>
+                            </h3>
+                            <p>${test.details}</p>
+                        </div>
+                    `;
+                } catch (error) {
+                    html += `
+                        <div class="test-item fail">
+                            <h3>❌ ${test.name} <span class="status fail">ERROR</span></h3>
+                            <p>${test.details}</p>
+                            <code>${error.message}</code>
+                        </div>
+                    `;
+                }
+            }
+
+            html += `
+                <div style="margin-top: 30px; text-align: center; font-size: 24px; font-weight: bold;">
+                    ${passCount === tests.length ? '🎉 All Tests Passed!' : `⚠️ ${passCount}/${tests.length} Tests Passed`}
+                </div>
+            `;
+
+            // Show icon preview
+            html += `
+                <div style="margin-top: 30px;">
+                    <h3>🎨 Icon Preview:</h3>
+                    <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 8px; text-align: center;">
+                        <img src="/icons/icon-72x72.svg" class="icon-preview" alt="72x72">
+                        <img src="/icons/icon-96x96.svg" class="icon-preview" alt="96x96">
+                        <img src="/icons/icon-128x128.svg" class="icon-preview" alt="128x128">
+                        <img src="/icons/icon-192x192.svg" class="icon-preview" alt="192x192">
+                    </div>
+                </div>
+            `;
+
+            results.innerHTML = html;
+        }
+
+        async function testNotifications() {
+            if (!('Notification' in window)) {
+                alert('❌ Notifications not supported');
+                return;
+            }
+
+            const permission = await Notification.requestPermission();
+            if (permission === 'granted') {
+                new Notification('✅ PWA Test', {
+                    body: 'Notifications are working!',
+                    icon: '/icons/icon-192x192.svg',
+                    badge: '/icons/icon-72x72.svg'
+                });
+            } else {
+                alert('❌ Notification permission denied');
+            }
+        }
+
+        function testOffline() {
+            alert('📴 To test offline mode:\n\n1. Open DevTools (F12)\n2. Go to Application → Service Workers\n3. Check "Offline" checkbox\n4. Reload the page\n\nCached assets should still load!');
+        }
+
+        // Run tests on load
+        runTests();
+
+        // Log service worker status
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistration().then(reg => {
+                if (reg) {
+                    console.log('✅ Service Worker registered:', reg);
+                } else {
+                    console.log('⚠️ No Service Worker registered yet');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+

@@ -2,15 +2,59 @@
 <html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Primary Meta Tags -->
     <title>Social Good & Civic Tech | Building Better Communities</title>
+    <meta name="title" content="Social Good & Civic Tech | Building Better Communities" />
     <meta name="description" content="Empowering communities through technology and innovation. Join our platform connecting civic technologists and social entrepreneurs." />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/icons/icon-32x32.svg" />
+    <link rel="icon" type="image/svg+xml" sizes="32x32" href="/icons/icon-32x32.svg" />
+    <link rel="icon" type="image/svg+xml" sizes="16x16" href="/icons/icon-16x16.svg" />
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192x192.svg" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.svg" />
+    <link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144x144.svg" />
+    <link rel="apple-touch-icon" sizes="120x120" href="/icons/icon-128x128.svg" />
+    
+    <!-- Apple Mobile Web App -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Civic Platform" />
+    
+    <!-- Theme Colors -->
+    <meta name="theme-color" content="#3B82F6" />
+    <meta name="background-color" content="#000000" />
+    <meta name="msapplication-TileColor" content="#3B82F6" />
+    <meta name="msapplication-TileImage" content="/icons/icon-144x144.svg" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://civicplatform.org/" />
+    <meta property="og:title" content="Social Good & Civic Tech | Building Better Communities" />
+    <meta property="og:description" content="Empowering communities through technology and innovation." />
+    <meta property="og:image" content="/icons/icon-512x512.svg" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://civicplatform.org/" />
+    <meta property="twitter:title" content="Social Good & Civic Tech" />
+    <meta property="twitter:description" content="Empowering communities through technology and innovation." />
+    <meta property="twitter:image" content="/icons/icon-512x512.svg" />
+    
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   </head>
   <body class="font-['Inter'] antialiased">
+    <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
