@@ -56,7 +56,7 @@ A comprehensive web application that connects citizens, government officials, an
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/ishwargoswami/Civicproject.git
 cd bolt-project-social
 ```
 
